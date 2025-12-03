@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加班加班费计算器（增强版）</title>
+    <title>2025年12月加班费计算器（适配新格式）</title>
     <style>
         * {
             margin: 0;
@@ -180,7 +180,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>加班加班费计算器（增强版）</h1>
+        <h1>2025年12月加班费计算器（适配新格式）</h1>
 
         <!-- 输入区域 -->
         <div class="input-area">
@@ -210,29 +210,70 @@
 
         <!-- 加班费日历表区域 -->
         <div class="calendar-area">
-            <h2>本月加班费日历表</h2>
+            <h2>2025年12月加班费日历表（点击格子切换状态）</h2>
             <div class="calendar-controls">
-                <div class="calendar-type">
-                    <button class="type-btn active" data-type="workday">工作日/调班</button>
-                    <button class="type-btn" data-type="weekend">周末/调休</button>
-                    <button class="type-btn" data-type="holiday">法定节假日</button>
-                </div>
                 <div>
-                    <span id="currentMonth">2024年10月</span>
+                    <span>日期状态切换：点击日历格子可循环切换「工作日」→「周末」→「法定节假日」</span>
                 </div>
             </div>
-            <table class="calendar-table">
+            <table class="calendar-table" id="overtime-calendar">
                 <thead>
                     <tr>
-                        <th>日期</th>
-                        <th>星期</th>
-                        <th>日期类型</th>
-                        <th>加班时长（小时）</th>
-                        <th>加班费（元）</th>
+                        <th>周一</th>
+                        <th>周二</th>
+                        <th>周三</th>
+                        <th>周四</th>
+                        <th>周五</th>
+                        <th>周六</th>
+                        <th>周日</th>
                     </tr>
                 </thead>
-                <tbody id="calendarBody">
-                    <!-- 日历内容由JS动态生成 -->
+                <tbody>
+                    <tr>
+                        <td class="workday" data-date="1" data-type="workday">1<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="2" data-type="workday">2<br><span class="overtime-rate">平时加班：84.48元/小时</span></td>
+                        <td class="workday" data-date="3" data-type="workday">3<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="4" data-type="workday">4<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="5" data-type="workday">5<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="weekend" data-date="6" data-type="weekend">6<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                        <td class="weekend" data-date="7" data-type="weekend">7<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                    </tr>
+                    <tr>
+                        <td class="workday" data-date="8" data-type="workday">8<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="9" data-type="workday">9<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="10" data-type="workday">10<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="11" data-type="workday">11<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="12" data-type="workday">12<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="weekend" data-date="13" data-type="weekend">13<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                        <td class="weekend" data-date="14" data-type="weekend">14<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                    </tr>
+                    <tr>
+                        <td class="workday" data-date="15" data-type="workday">15<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="16" data-type="workday">16<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="17" data-type="workday">17<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="18" data-type="workday">18<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="19" data-type="workday">19<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="weekend" data-date="20" data-type="weekend">20<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                        <td class="weekend" data-date="21" data-type="weekend">21<br><span class="overtime-rate">周末加班：100.32元/小时</span></td>
+                    </tr>
+                    <tr>
+                        <td class="workday" data-date="22" data-type="workday">22<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="23" data-type="workday">23<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="24" data-type="workday">24<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="holiday" data-date="25" data-type="holiday">25<br><span class="overtime-rate">节假日加班：150.48元/小时</span></td>
+                        <td class="holiday" data-date="26" data-type="holiday">26<br><span class="overtime-rate">节假日加班：150.48元/小时</span></td>
+                        <td class="holiday" data-date="27" data-type="holiday">27<br><span class="overtime-rate">节假日加班：150.48元/小时</span></td>
+                        <td class="workday" data-date="28" data-type="workday">28<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                    </tr>
+                    <tr>
+                        <td class="workday" data-date="29" data-type="workday">29<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="workday" data-date="30" data-type="workday">30<br><span class="overtime-rate">平时加班：75.24元/小时</span></td>
+                        <td class="holiday" data-date="31" data-type="holiday">31<br><span class="overtime-rate">节假日加班：150.48元/小时</span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -243,23 +284,23 @@
             <ol class="usage-list">
                 <li>在电脑上使用<strong>谷歌浏览器（Chrome）</strong>或<strong>Edge浏览器</strong>打开公司考勤系统（QHR）。</li>
                 <li>按<strong>F12</strong>打开开发者工具，切换到「网络」（Network）标签页。</li>
-                <li>在考勤系统中点击「个人考勤查询」，加载当月打卡数据。</li>
+                <li>在考勤系统中点击「个人考勤查询」，加载2025年12月打卡数据。</li>
                 <li>在开发者工具的「网络」面板中，找到名称类似「alist!2CXvv_JQ9M03QhX8PGCgxw.220302」的请求项（类型为XHR/Fetch）。</li>
-                <li>点击该项，切换到「预览」（Preview）标签，找到打卡数据数组（通常是包含date、checkIn、checkOut等字段的列表），右键点击「复制值」（Copy value）。</li>
+                <li>点击该项，切换到「预览」（Preview）标签，找到打卡数据数组（包含CARDTIME、SHIFTTERM等字段），右键点击「复制值」（Copy value）。</li>
                 <li>将复制的JSON格式数据粘贴到本页面的「打卡数据输入框」中。</li>
                 <li>在「本月事假时长」输入框中填写实际请假小时数（支持小数，如1.5小时）。</li>
-                <li>点击「计算加班费」按钮，即可查看统计结果和日历表。</li>
-                <li>日历表支持切换「工作日/调班」「周末/调休」「法定节假日」类型，点击对应按钮即可筛选查看。</li>
+                <li>点击日历格子可切换日期状态（工作日→周末→法定节假日，循环切换），系统会自动适配对应加班费标准。</li>
+                <li>点击「计算加班费」按钮，即可查看统计结果和详细加班数据。</li>
                 <li><strong>重要提示：</strong>所有数据仅在本地浏览器中处理，绝不上传至任何服务器，隐私安全有保障！</li>
             </ol>
         </div>
     </div>
 
     <script>
-        // 配置参数
+        // 配置参数（适配2025年12月加班费标准，从日历表提取）
         const CONFIG = {
-            // 时薪标准（可根据公司政策修改）
-            HOURLY_WAGE: 50,
+            // 时薪标准（根据日历表反推，确保加班费计算准确）
+            HOURLY_WAGE: 50.16, // 基础时薪：平时加班75.24=50.16×1.5，周末100.32=50.16×2，节假日150.48=50.16×3
             // 加班倍数（劳动法标准）
             OVERTIME_RATIO: {
                 weekday: 1.5,    // 平时加班1.5倍
@@ -268,18 +309,12 @@
             },
             // 事假扣费标准（1小时20元）
             LEAVE_DEDUCTION_PER_HOUR: 20,
-            // 法定节假日配置（2024年示例，可根据实际年份更新）
-            HOLIDAYS_2024: [
-                '2024-01-01', '2024-02-10', '2024-02-11', '2024-02-12', '2024-02-13', '2024-02-14',
-                '2024-04-04', '2024-05-01', '2024-06-10', '2024-09-15', '2024-09-16', '2024-10-01',
-                '2024-10-02', '2024-10-03', '2024-10-04', '2024-10-05', '2024-10-06', '2024-10-07'
-            ]
+            // 2025年12月法定节假日（元旦）
+            HOLIDAYS_2025_12: ['2025-12-25', '2025-12-26', '2025-12-27', '2025-12-31']
         };
 
         // 全局变量
-        let attendanceList = [];  // 打卡数据列表
-        let currentMonth = new Date();  // 当前月份
-        let activeCalendarType = 'workday';  // 当前激活的日历类型
+        let attendanceList = [];  // 格式化后的打卡数据列表
 
         // DOM元素
         const $attendanceData = document.getElementById('attendanceData');
@@ -295,24 +330,44 @@
         const $leaveDeduction = document.getElementById('leaveDeduction');
         const $totalSalary = document.getElementById('totalSalary');
         const $level = document.getElementById('level');
-        const $calendarBody = document.getElementById('calendarBody');
-        const $currentMonth = document.getElementById('currentMonth');
-        const $typeBtns = document.querySelectorAll('.type-btn');
+        const $calendarCells = document.querySelectorAll('#overtime-calendar td[data-date]');
 
         // 初始化
         init();
 
         function init() {
-            // 设置当前月份显示
-            $currentMonth.textContent = `${currentMonth.getFullYear()}年${currentMonth.getMonth() + 1}月`;
-            
-            // 日历类型切换事件
-            $typeBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    $typeBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    activeCalendarType = btn.dataset.type;
-                    renderCalendar();  // 重新渲染日历
+            // 日历格子点击切换状态
+            $calendarCells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const currentType = cell.dataset.type;
+                    // 循环切换：workday→weekend→holiday→workday
+                    let newType = '';
+                    let newClass = '';
+                    let rateText = '';
+                    let rate = 0;
+
+                    if (currentType === 'workday') {
+                        newType = 'weekend';
+                        newClass = 'weekend';
+                        rate = 100.32; // 周末加班费率
+                        rateText = `周末加班：${rate}元/小时`;
+                    } else if (currentType === 'weekend') {
+                        newType = 'holiday';
+                        newClass = 'holiday';
+                        rate = 150.48; // 节假日加班费率
+                        rateText = `节假日加班：${rate}元/小时`;
+                    } else {
+                        newType = 'workday';
+                        newClass = 'workday';
+                        rate = 75.24; // 平时加班费率（12月1日特殊84.48，单独处理）
+                        if (cell.dataset.date === '2') rate = 84.48; // 12月2日特殊费率
+                        rateText = `平时加班：${rate}元/小时`;
+                    }
+
+                    // 更新单元格状态
+                    cell.dataset.type = newType;
+                    cell.className = newClass;
+                    cell.innerHTML = `${cell.dataset.date}<br><span class="overtime-rate">${rateText}</span>`;
                 });
             });
 
@@ -321,30 +376,47 @@
         }
 
         /**
-         * 解析打卡数据
+         * 解析打卡数据（适配CARDTIME格式）
+         * 核心逻辑：按日期分组，提取每日最早打卡=上班时间，最晚打卡=下班时间
          * @returns {Array} 格式化后的打卡数据
          */
         function parseAttendanceData() {
             try {
-                const data = JSON.parse($attendanceData.value.trim());
-                if (!Array.isArray(data)) throw new Error('数据格式错误，应为数组');
-                
-                // 格式化数据：提取日期、上下班时间、计算加班时长
-                return data.map(item => {
-                    const date = item.date || item.workDate;  // 兼容不同字段名
-                    const checkIn = item.checkIn || item.onDutyTime;  // 上班时间
-                    const checkOut = item.checkOut || item.offDutyTime;  // 下班时间
+                const rawData = JSON.parse($attendanceData.value.trim());
+                if (!Array.isArray(rawData)) throw new Error('数据格式错误，应为数组');
+                if (rawData.length === 0) throw new Error('打卡数据为空');
+
+                // 按日期分组（SHIFTTERM字段为日期）
+                const dateGroup = {};
+                rawData.forEach(item => {
+                    const date = item.SHIFTTERM; // 日期（YYYY-MM-DD）
+                    const cardTime = item.CARDTIME; // 打卡时间（YYYY-MM-DD HH:mm:ss）
+                    
+                    if (!dateGroup[date]) {
+                        dateGroup[date] = [];
+                    }
+                    dateGroup[date].push(cardTime);
+                });
+
+                // 格式化每组数据：提取最早/最晚打卡时间作为上下班时间
+                const formattedData = [];
+                Object.keys(dateGroup).forEach(date => {
+                    const cardTimes = dateGroup[date];
+                    // 排序打卡时间，获取最早（上班）和最晚（下班）
+                    cardTimes.sort();
+                    const checkIn = cardTimes[0].split(' ')[1]; // 上班时间（HH:mm:ss）
+                    const checkOut = cardTimes[cardTimes.length - 1].split(' ')[1]; // 下班时间（HH:mm:ss）
                     
                     // 计算当日加班时长（小时）
                     const overtimeHours = calculateDailyOvertime(date, checkIn, checkOut);
                     
-                    // 判断日期类型（工作日/周末/法定节假日）
-                    const dateType = getDateType(date);
+                    // 判断日期类型（从日历格子获取当前状态，支持手动切换后的数据同步）
+                    const dateType = getDateTypeFromCalendar(date);
                     
-                    // 计算当日加班费
-                    const dailySalary = overtimeHours * CONFIG.HOURLY_WAGE * CONFIG.OVERTIME_RATIO[dateType];
+                    // 计算当日加班费（根据日历格子的费率，确保精准）
+                    const dailySalary = calculateDailySalary(date, overtimeHours, dateType);
                     
-                    return {
+                    formattedData.push({
                         date,
                         week: getWeekday(date),
                         dateType,
@@ -353,8 +425,10 @@
                         checkOut,
                         overtimeHours: parseFloat(overtimeHours.toFixed(2)),
                         dailySalary: parseFloat(dailySalary.toFixed(2))
-                    };
-                }).filter(item => item.date);  // 过滤无效数据
+                    });
+                });
+
+                return formattedData.filter(item => item.overtimeHours >= 0);
             } catch (e) {
                 alert(`数据解析失败：${e.message}\n请检查粘贴的打卡数据格式是否正确`);
                 return [];
@@ -362,7 +436,37 @@
         }
 
         /**
+         * 从日历格子获取当前日期类型（支持手动切换状态同步）
+         * @param {string} date 日期（YYYY-MM-DD）
+         * @returns {string} 类型：weekday/weekend/holiday
+         */
+        function getDateTypeFromCalendar(date) {
+            const day = date.split('-')[2]; // 提取日（DD）
+            const cell = document.querySelector(`#overtime-calendar td[data-date="${day}"]`);
+            return cell ? cell.dataset.type : 'weekday'; // 默认工作日
+        }
+
+        /**
+         * 计算当日加班费（根据日历表显示的费率，确保和视觉一致）
+         * @param {string} date 日期（YYYY-MM-DD）
+         * @param {number} overtimeHours 加班时长（小时）
+         * @param {string} dateType 日期类型
+         * @returns {number} 当日加班费
+         */
+        function calculateDailySalary(date, overtimeHours, dateType) {
+            const day = date.split('-')[2];
+            const cell = document.querySelector(`#overtime-calendar td[data-date="${day}"]`);
+            if (!cell) return 0;
+
+            // 从日历格子提取当前费率（支持手动切换后费率同步）
+            const rateText = cell.querySelector('.overtime-rate').textContent;
+            const rate = parseFloat(rateText.match(/(\d+\.\d+)/)[1]);
+            return overtimeHours * rate;
+        }
+
+        /**
          * 计算当日加班时长（小时）
+         * 标准工作时间：9:00-18:00（8小时），超出部分算加班
          * @param {string} date 日期（YYYY-MM-DD）
          * @param {string} checkIn 上班时间（HH:mm:ss）
          * @param {string} checkOut 下班时间（HH:mm:ss）
@@ -370,56 +474,36 @@
          */
         function calculateDailyOvertime(date, checkIn, checkOut) {
             if (!checkIn || !checkOut) return 0;
-            
-            // 标准工作时间（可根据公司政策修改）
-            const standardWorkHours = 8;  // 标准工时8小时
-            const standardCheckIn = '09:00:00';  // 标准上班时间
-            const standardCheckOut = '18:00:00';  // 标准下班时间
-            
-            // 转换为时间戳（毫秒）
-            const checkInTime = new Date(`${date} ${checkIn}`).getTime();
-            const checkOutTime = new Date(`${date} ${checkOut}`).getTime();
-            const standardCheckInTime = new Date(`${date} ${standardCheckIn}`).getTime();
-            const standardCheckOutTime = new Date(`${date} ${standardCheckOut}`).getTime();
-            
-            // 计算实际工作时长（小时）
-            const actualWorkHours = (checkOutTime - checkInTime) / (1000 * 60 * 60);
-            
-            // 计算加班时长（实际工作时长 - 标准工时，最低0）
-            let overtimeHours = Math.max(0, actualWorkHours - standardWorkHours);
-            
-            // 额外规则：早到不计算加班，晚退才计算（可根据需求调整）
-            const isLateCheckIn = checkInTime > standardCheckInTime;
-            if (isLateCheckIn) {
-                const lateHours = (checkInTime - standardCheckInTime) / (1000 * 60 * 60);
-                overtimeHours = Math.max(0, overtimeHours - lateHours);
-            }
-            
+
+            // 标准工作时间：9:00-18:00（8小时）
+            const standardStart = new Date(`${date} 09:00:00`).getTime();
+            const standardEnd = new Date(`${date} 18:00:00`).getTime();
+            const actualStart = new Date(`${date} ${checkIn}`).getTime();
+            const actualEnd = new Date(`${date} ${checkOut}`).getTime();
+
+            // 实际工作时长（毫秒）
+            const actualWorkMs = actualEnd - actualStart;
+            const actualWorkHours = actualWorkMs / (1000 * 60 * 60);
+
+            // 加班时长 = 实际工作时长 - 标准8小时（最低0）
+            let overtimeHours = Math.max(0, actualWorkHours - 8);
+
+            // 特殊规则：早到不算加班，晚退才算（如9:30上班，18:30下班，实际工作9小时，加班1小时）
+            const lateHours = actualStart > standardStart ? (actualStart - standardStart) / (1000 * 60 * 60) : 0;
+            overtimeHours = Math.max(0, overtimeHours - lateHours);
+
             return overtimeHours;
         }
 
         /**
-         * 判断日期类型
+         * 获取星期文本
          * @param {string} date 日期（YYYY-MM-DD）
-         * @returns {string} 类型：weekday/weekend/holiday
+         * @returns {string} 星期文本（如：星期一）
          */
-        function getDateType(date) {
+        function getWeekday(date) {
+            const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
             const dateObj = new Date(date);
-            const weekDay = dateObj.getDay();  // 0-6（0是周日，6是周六）
-            const dateStr = dateObj.toISOString().split('T')[0];  // 转换为YYYY-MM-DD格式
-            
-            // 先判断是否为法定节假日
-            if (CONFIG.HOLIDAYS_2024.includes(dateStr)) {
-                return 'holiday';
-            }
-            
-            // 再判断是否为周末（周日/周六）
-            if (weekDay === 0 || weekDay === 6) {
-                return 'weekend';
-            }
-            
-            // 否则为工作日
-            return 'weekday';
+            return weekDays[dateObj.getDay()];
         }
 
         /**
@@ -437,24 +521,13 @@
         }
 
         /**
-         * 获取星期文本
-         * @param {string} date 日期（YYYY-MM-DD）
-         * @returns {string} 星期文本（如：星期一）
-         */
-        function getWeekday(date) {
-            const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-            const dateObj = new Date(date);
-            return weekDays[dateObj.getDay()];
-        }
-
-        /**
          * 计算总加班费和统计数据
          */
         function calculateOvertime() {
             // 解析打卡数据
             attendanceList = parseAttendanceData();
             if (attendanceList.length === 0) return;
-            
+
             // 计算各类型加班总时长
             const weekdayTotal = attendanceList
                 .filter(item => item.dateType === 'weekday')
@@ -465,26 +538,24 @@
             const holidayTotal = attendanceList
                 .filter(item => item.dateType === 'holiday')
                 .reduce((sum, item) => sum + item.overtimeHours, 0);
-            
+
             // 转换为分钟
             const weekdayMin = Math.round(weekdayTotal * 60);
             const weekendMin = Math.round(weekendTotal * 60);
             const holidayMin = Math.round(holidayTotal * 60);
-            
-            // 计算总加班费
-            const overtimeSalaryTotal = (
-                weekdayTotal * CONFIG.HOURLY_WAGE * CONFIG.OVERTIME_RATIO.weekday +
-                weekendTotal * CONFIG.HOURLY_WAGE * CONFIG.OVERTIME_RATIO.weekend +
-                holidayTotal * CONFIG.HOURLY_WAGE * CONFIG.OVERTIME_RATIO.holiday
-            ).toFixed(2);
-            
+
+            // 计算总加班费（从每日加班费求和，确保精准）
+            const overtimeSalaryTotal = attendanceList
+                .reduce((sum, item) => sum + item.dailySalary, 0)
+                .toFixed(2);
+
             // 计算事假扣减费
             const leaveHours = parseFloat($personalLeave.value) || 0;
             const leaveDeduction = (leaveHours * CONFIG.LEAVE_DEDUCTION_PER_HOUR).toFixed(2);
-            
+
             // 计算最终总加班费
             const totalSalary = (overtimeSalaryTotal - leaveDeduction).toFixed(2);
-            
+
             // 更新统计结果
             $weekdayOvertime.textContent = weekdayTotal.toFixed(2);
             $weekdayOvertimeMin.textContent = weekdayMin;
@@ -495,12 +566,9 @@
             $overtimeSalary.textContent = overtimeSalaryTotal;
             $leaveDeduction.textContent = `-${leaveDeduction}`;
             $totalSalary.textContent = totalSalary;
-            
+
             // 计算鉴定级别
             calculateLevel(totalSalary);
-            
-            // 渲染日历表
-            renderCalendar();
         }
 
         /**
@@ -510,85 +578,40 @@
         function calculateLevel(total) {
             const totalNum = parseFloat(total);
             let levelText = '';
-            
+            let levelColor = '';
+
             if (totalNum < 300) {
                 levelText = '你在干什么？';
-                $level.style.color = '#e53e3e';
+                levelColor = '#e53e3e';
             } else if (totalNum < 500) {
                 levelText = '还行';
-                $level.style.color = '#ed8936';
+                levelColor = '#ed8936';
             } else if (totalNum < 1000) {
                 levelText = '一般，建议多加点，冲1000！';
-                $level.style.color = '#f6ad55';
+                levelColor = '#f6ad55';
             } else if (totalNum <= 1500) {
                 levelText = '牛逼';
-                $level.style.color = '#48bb78';
+                levelColor = '#48bb78';
             } else if (totalNum < 2000) {
                 levelText = '逆天';
-                $level.style.color = '#38b2ac';
+                levelColor = '#38b2ac';
             } else {
                 levelText = '你是懂加班的';
-                $level.style.color = '#9f7aea';
+                levelColor = '#9f7aea';
             }
-            
+
             $level.textContent = `鉴定级别：${levelText}`;
+            $level.style.color = levelColor;
         }
 
         /**
-         * 渲染日历表
+         * 获取星期文本
+         * @param {string} date 日期（YYYY-MM-DD）
+         * @returns {string} 星期文本
          */
-        function renderCalendar() {
-            if (attendanceList.length === 0) return;
-            
-            // 筛选当前激活类型的日期数据
-            const filteredData = attendanceList.filter(item => {
-                if (activeCalendarType === 'workday') {
-                    return item.dateType === 'weekday';
-                } else if (activeCalendarType === 'weekend') {
-                    return item.dateType === 'weekend';
-                } else if (activeCalendarType === 'holiday') {
-                    return item.dateType === 'holiday';
-                }
-                return true;
-            });
-            
-            // 清空日历内容
-            $calendarBody.innerHTML = '';
-            
-            // 渲染每一行数据
-            filteredData.forEach(item => {
-                const tr = document.createElement('tr');
-                
-                // 设置行样式（根据日期类型）
-                if (item.dateType === 'weekday') tr.classList.add('workday');
-                else if (item.dateType === 'weekend') tr.classList.add('weekend');
-                else if (item.dateType === 'holiday') tr.classList.add('holiday');
-                
-                // 加班时长高亮（大于0时）
-                const overtimeHoursText = item.overtimeHours > 0 
-                    ? `<span class="overtime">${item.overtimeHours}</span>` 
-                    : item.overtimeHours;
-                const salaryText = item.dailySalary > 0 
-                    ? `<span class="overtime">${item.dailySalary}</span>` 
-                    : item.dailySalary;
-                
-                tr.innerHTML = `
-                    <td>${item.date.split('-').slice(1).join('-')}</td>
-                    <td>${item.week}</td>
-                    <td>${item.dateTypeText}</td>
-                    <td>${overtimeHoursText}</td>
-                    <td>${salaryText}</td>
-                `;
-                
-                $calendarBody.appendChild(tr);
-            });
-            
-            // 如果没有数据，显示提示
-            if (filteredData.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="5" style="color: #718096;">本月暂无该类型的打卡数据</td>`;
-                $calendarBody.appendChild(tr);
-            }
+        function getWeekday(date) {
+            const weekMap = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            return weekMap[new Date(date).getDay()];
         }
     </script>
 </body>

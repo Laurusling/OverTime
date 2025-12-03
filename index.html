@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>加班费计算器（单文件）</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#06b6d4;--glass:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial; margin:0; background:linear-gradient(180deg,#071029 0%, #071026 100%); color:#e6eef6; padding:24px}
+    .container{max-width:1100px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,.6);margin-bottom:16px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text], textarea, select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    textarea{min-height:140px;font-family:monospace;font-size:13px}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    button{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#072023;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03)}
+    th{color:var(--muted);font-weight:600}
+    .muted{color:var(--muted);font-size:13px}
+    .kpi{display:flex;gap:12px;margin-top:12px}
+    .kpi .item{background:var(--glass);padding:10px;border-radius:8px;min-width:140px}
+    .config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media (max-width:900px){.row{flex-direction:column}.config-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>加班费计算器（单文件）</h1>
+        <p class="lead">把考勤 JSON 粘贴到下方 → 点击“解析并计算”。配置项可调整规则（默认使用你提供的规则）。</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <label>考勤 JSON（数组，每项包含 CARDTIME 与 SHIFTTERM）</label>
+      <textarea id="inputJson" placeholder='在此粘贴 JSON，例如：\n[ {"CARDTIME":"2025-12-01 09:30:46","SHIFTTERM":"2025-12-01"}, ... ]'></textarea>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnParse">解析并计算</button>
+        <button id="btnClear" class="ghost">清空</button>
+        <button id="btnLoadSample" class="ghost">加载示例数据</button>
+        <button id="btnExport" class="ghost">导出 CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">规则配置（可修改）</h3>
+      <div class="config-grid">
+        <div>
+          <label>上班时间</label>
+          <input id="workStart" type="text" value="09:00">
+        </div>
+        <div>
+          <label>下班时间</label>
+          <input id="workEnd" type="text" value="18:00">
+        </div>
+        <div>
+          <label>午休（不计工时）</label>
+          <input id="lunch" type="text" value="12:00-13:30">
+        </div>
+        <div>
+          <label>工作日加班起算时间</label>
+          <input id="workOvertimeStart" type="text" value="19:00">
+        </div>
+        <div>
+          <label>工作日加班单价（元/小时）</label>
+          <input id="rateWork" type="text" value="20">
+        </div>
+        <div>
+          <label>周末/节假日加班单价（元/小时）</label>
+          <input id="rateWeekend" type="text" value="30">
+        </div>
+        <div>
+          <label>加班计算截止（次日）</label>
+          <input id="overtimeEnd" type="text" value="05:00">
+        </div>
+        <div>
+          <label>周末加班起算点（默认下班时间）</label>
+          <input id="weekendStart" type="text" value="18:00">
+        </div>
+        <div>
+          <label>是否启用节假日（可上传日期列表，格式：YYYY-MM-DD,YYYY-MM-DD）</label>
+          <input id="holidays" type="text" placeholder="2025-10-01,2025-10-02">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">结果</h3>
+      <div id="summary" class="muted">还未计算。</div>
+      <div id="kpis" class="kpi" style="display:none"></div>
+      <div id="tableWrap"></div>
+    </div>
+
+    <footer style="margin-top:18px;text-align:center;color:var(--muted);font-size:13px">说明：公司规则已默认填入；你可以调整规则后重新计算。<br>仅使用每个 SHIFTTERM 的最晚 CARDTIME 计算延时（按你要求）。</footer>
+  </div>
+
+<script>
+function parseTimeStr(s){ // "HH:MM"
+  const parts = s.split(':').map(x=>parseInt(x,10));
+  return {h:parts[0]||0,m:parts[1]||0};
+}
+function toDate(dStr){ // accepts 'YYYY-MM-DD HH:MM:SS' or ISO
+  // normalize space
+  return new Date(dStr.replace(' ','T'));
+}
+function formatDate(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+}
+function dateAddDays(d,days){const r=new Date(d);r.setDate(r.getDate()+days);return r}
+
+function isWeekendDate(d){const wd = d.getDay(); return wd===0||wd===6}
+
+function clamp(a,b,c){return Math.max(a,Math.min(c,b));}
+
+function compute(records, cfg){
+  // group by SHIFTTERM (date string)
+  const byDate = {};
+  records.forEach(r=>{
+    const st = r.SHIFTTERM || (r.CARDTIME? formatDate(new Date(r.CARDTIME.replace(' ','T'))) : '');
+    if(!byDate[st]) byDate[st]=[];
+    byDate[st].push(r);
+  });
+
+  const out = [];
+  const holidaySet = new Set((cfg.holidays||"").split(',').map(x=>x.trim()).filter(x=>x));
+
+  for(const dayStr of Object.keys(byDate).sort()){
+    const arr = byDate[dayStr];
+    // find max CARDTIME
+    const times = arr.map(x=> new Date(x.CARDTIME.replace(' ','T'))).filter(x=>!isNaN(x));
+    if(times.length===0) continue;
+    let last = new Date(Math.max(...times.map(d=>d.getTime())));
+    // interpret date
+    const dayDate = new Date(dayStr+'T00:00:00');
+    const isHoliday = holidaySet.has(dayStr);
+    const isWeekend = isWeekendDate(dayDate);
+    const type = isHoliday? 'holiday' : (isWeekend? 'weekend' : 'workday');
+
+    // compute overtime hours
+    let otHours = 0;
+    if(type === 'workday'){
+      const startParts = parseTimeStr(cfg.workOvertimeStart);
+      const start = new Date(dayDate);
+      start.setHours(startParts.h, startParts.m,0,0);
+      const endLimitParts = parseTimeStr(cfg.overtimeEnd);
+      const endLimit = new Date(dayDate);
+      endLimit.setDate(endLimit.getDate()+1);
+      endLimit.setHours(endLimitParts.h, endLimitParts.m,0,0);
+      if(last > start){
+        const end = last > endLimit ? endLimit : last;
+        otHours = (end - start)/1000/3600;
+      }
+    } else {
+      // weekend/holiday: start from weekendStart
+      const startParts = parseTimeStr(cfg.weekendStart);
+      const start = new Date(dayDate);
+      start.setHours(startParts.h, startParts.m,0,0);
+      const endLimitParts = parseTimeStr(cfg.overtimeEnd);
+      const endLimit = new Date(dayDate);
+      endLimit.setDate(endLimit.getDate()+1);
+      endLimit.setHours(endLimitParts.h, endLimitParts.m,0,0);
+      if(last > start){
+        const end = last > endLimit ? endLimit : last;
+        otHours = (end - start)/1000/3600;
+      }
+    }
+    if(otHours < 0) otHours = 0;
+    const rate = (type==='workday')? Number(cfg.rateWork) : Number(cfg.rateWeekend);
+    const fee = otHours * rate;
+    out.push({date:dayStr, last: last.toLocaleString(), type, otHours: Math.round(otHours*100)/100, fee: Math.round(fee*100)/100});
+  }
+  return out;
+}
+
+function downloadCSV(filename, rows){
+  if(rows.length===0) return;
+  const keys = Object.keys(rows[0]);
+  const csv = [keys.join(',')].concat(rows.map(r=> keys.map(k=> '"'+String(r[k]).replace(/"/g,'""')+'"').join(','))).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+// UI wiring
+const inputJson = document.getElementById('inputJson');
+const btnParse = document.getElementById('btnParse');
+const btnClear = document.getElementById('btnClear');
+const btnLoadSample = document.getElementById('btnLoadSample');
+const btnExport = document.getElementById('btnExport');
+const tableWrap = document.getElementById('tableWrap');
+const summary = document.getElementById('summary');
+const kpis = document.getElementById('kpis');
+
+btnLoadSample.addEventListener('click', ()=>{
+  const sample = [
+    {"CARDTIME":"2025-12-01 09:30:46","SHIFTTERM":"2025-12-01"},
+    {"CARDTIME":"2025-12-01 22:48:06","SHIFTTERM":"2025-12-01"},
+    {"CARDTIME":"2025-12-02 23:16:07","SHIFTTERM":"2025-12-02"},
+    {"CARDTIME":"2025-12-03 12:15:38","SHIFTTERM":"2025-12-03"}
+  ];
+  inputJson.value = JSON.stringify(sample, null, 2);
+});
+
+btnClear.addEventListener('click', ()=>{inputJson.value=''; tableWrap.innerHTML=''; summary.innerText='已清空'; kpis.style.display='none';});
+
+btnParse.addEventListener('click', ()=>{
+  let records;
+  try{ records = JSON.parse(inputJson.value); if(!Array.isArray(records)) throw 0; }
+  catch(e){ alert('JSON 解析失败，请确保是数组格式。'); return; }
+
+  const cfg = {
+    workStart: document.getElementById('workStart').value.trim(),
+    workEnd: document.getElementById('workEnd').value.trim(),
+    lunch: document.getElementById('lunch').value.trim(),
+    workOvertimeStart: document.getElementById('workOvertimeStart').value.trim(),
+    rateWork: document.getElementById('rateWork').value.trim()||'20',
+    rateWeekend: document.getElementById('rateWeekend').value.trim()||'30',
+    overtimeEnd: document.getElementById('overtimeEnd').value.trim()||'05:00',
+    weekendStart: document.getElementById('weekendStart').value.trim()||'18:00',
+    holidays: document.getElementById('holidays').value.trim()
+  };
+
+  const results = compute(records, cfg);
+  // render table
+  if(results.length===0){ summary.innerText='未找到有效打卡记录（检查 JSON 中是否包含 CARDTIME 与 SHIFTTERM）'; tableWrap.innerHTML=''; kpis.style.display='none'; return; }
+  let html = '<table><thead><tr><th>日期</th><th>最晚打卡</th><th>类型</th><th>加班时长(小时)</th><th>加班费(元)</th></tr></thead><tbody>';
+  let totalHours=0, totalFee=0;
+  for(const r of results){ html += `<tr><td>${r.date}</td><td>${r.last}</td><td>${r.type}</td><td>${r.otHours}</td><td>${r.fee}</td></tr>`; totalHours+=Number(r.otHours); totalFee+=Number(r.fee);} 
+  html += '</tbody></table>';
+  tableWrap.innerHTML = html;
+  summary.innerHTML = `已计算 <strong>${results.length}</strong> 天；总加班：<strong>${Math.round(totalHours*100)/100} 小时</strong>，总费用：<strong>${Math.round(totalFee*100)/100} 元</strong>`;
+  kpis.style.display='flex'; kpis.innerHTML = `<div class="item">总天数<br><strong>${results.length}</strong></div><div class="item">总加班（小时）<br><strong>${Math.round(totalHours*100)/100}</strong></div><div class="item">总加班费（元）<br><strong>${Math.round(totalFee*100)/100}</strong></div>`;
+
+  // attach data to export button
+  btnExport.dataset.csv = JSON.stringify(results);
+});
+
+btnExport.addEventListener('click', ()=>{
+  if(!btnExport.dataset.csv){ alert('请先计算后再导出'); return; }
+  const rows = JSON.parse(btnExport.dataset.csv);
+  downloadCSV('overtime.csv', rows);
+});
+
+</script>
+</body>
+</html>

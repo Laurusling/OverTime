@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年12月加班费计算器</title>
+    <title>加班费计算器</title>
     <style>
         * {
             margin: 0;
@@ -322,7 +322,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="main-title">2025年12月加班费计算器</h1>
+        <h1 id="main-title">加班费计算器</h1>
 
         <!-- 规则配置区域 -->
         <div class="config-area">
@@ -369,7 +369,7 @@
 
         <!-- 统计结果区域 -->
         <div class="result-area">
-            <h2>本月加班统计</h2>
+            <h2 id="stat-title">加班统计</h2>
             <div class="stat-grid">
                 <div class="stat-item">
                     <p>工作日加班时间</p>
@@ -425,7 +425,7 @@
 
         <!-- 加班费日历表区域 -->
         <div class="calendar-area">
-            <h2>2025年12月考勤详情</h2>
+            <h2 id="calendar-title">考勤详情</h2>
             <table class="calendar-table" id="overtime-calendar">
                 <thead>
                     <tr>
@@ -450,7 +450,7 @@
             <ol>
                 <li>在电脑上使用<strong>谷歌浏览器（Chrome）</strong>或<strong>Edge浏览器</strong>打开公司考勤系统（QHR）。</li>
                 <li>按<strong>F12</strong>打开开发者工具，切换到「网络」（Network）标签页。</li>
-                <li>在考勤系统中点击「个人考勤查询」，加载2025年12月打卡数据。</li>
+                <li>在考勤系统中点击「个人考勤查询」，加载对应月份打卡数据。</li>
                 <li>在开发者工具的「网络」面板中，找到名称类似<strong>「alist!2CXvv_JQ9M03QhX8PGCgxw.220302」</strong>的请求项（类型为XHR/Fetch）。</li>
                 <li>点击该项，切换到「预览」（Preview）标签，找到打卡数据数组（包含CARDTIME、SHIFTTERM等字段），右键点击「复制值」（Copy value）。</li>
                 <li>将复制的JSON格式数据粘贴到本页面的「打卡数据输入框」中。</li>
@@ -469,16 +469,34 @@
         let dateTypes = {}; // 存储每个日期的类型 {day: 'workday/weekend/holiday/workday-holiday'}
         let attendanceData = {}; // 存储考勤数据
         let holidayData = {}; // 存储节假日数据
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth() + 1;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+
+        // 从考勤数据中提取年月
+        function extractDateFromAttendance(data) {
+            if (!data || data.length === 0) return false;
+            
+            // 获取第一条有效数据的日期
+            for (let item of data) {
+                if (item.SHIFTTERM) {
+                    const dateParts = item.SHIFTTERM.split('-');
+                    if (dateParts.length === 3) {
+                        currentYear = parseInt(dateParts[0]);
+                        currentMonth = parseInt(dateParts[1]);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         // 初始化页面标题
         function initTitle() {
             const titleText = `${currentYear}年${currentMonth}月加班费计算器`;
             document.getElementById('main-title').textContent = titleText;
             document.title = titleText;
-            document.querySelector('.calendar-area h2').textContent = `${currentYear}年${currentMonth}月考勤详情`;
+            document.getElementById('stat-title').textContent = `${currentYear}年${currentMonth}月加班统计`;
+            document.getElementById('calendar-title').textContent = `${currentYear}年${currentMonth}月考勤详情`;
         }
 
         // 获取节假日数据
@@ -503,14 +521,11 @@
                             }
                         }
                     });
-                    
-                    // 初始化日期类型
-                    initDateTypes();
-                    initCalendar();
                 }
             } catch (error) {
                 console.error('获取节假日数据失败:', error);
-                // 如果API调用失败，使用默认初始化
+            } finally {
+                // 无论API是否成功，都初始化日期类型和日历
                 initDateTypes();
                 initCalendar();
             }
@@ -638,7 +653,7 @@
             // 更新节假日标记
             cell.innerHTML = `
                 <span class="date-number">${day}</span>
-                ${dateTypes[day] === 'holiday' ? '<span style="color:#ff6bff;">节</span>' : ''}
+                ${dateTypes[day] === 'holiday' ? '<span style="color:#ff6b6b;">节</span>' : ''}
                 ${dateTypes[day] === 'workday-holiday' ? '<span style="color:#ffff6b;">补</span>' : ''}
                 <div class="attendance-info" id="info-${day}"></div>
                 <span class="overtime-rate" id="rate-${day}">¥${getRateByType(dateTypes[day])}/小时</span>
@@ -733,6 +748,14 @@
                 // 确保数据是数组
                 let data = Array.isArray(rawData) ? rawData : JSON.parse(rawData);
                 debugArea.innerHTML += `数据长度：${data.length}条记录\n`;
+                
+                // 从数据中提取年月
+                const dateExtracted = extractDateFromAttendance(data);
+                debugArea.innerHTML += `提取到日期：${currentYear}年${currentMonth}月\n`;
+                
+                // 初始化标题和日历
+                initTitle();
+                fetchHolidayData();
                 
                 // 按日期分组
                 const groupedData = {};
@@ -845,10 +868,13 @@
                     statusClass = 'tag-workday';
                 }
                 
+                // 格式化日期
+                const dateStr = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                
                 // 创建表格行
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${currentYear}-${currentMonth.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}</td>
+                    <td>${dateStr}</td>
                     <td>${statusText} <span class="status-tag ${statusClass}">${statusText}</span></td>
                     <td>${data.firstCheck}</td>
                     <td>${data.lastCheck}</td>
@@ -1012,13 +1038,15 @@
                 const parseSuccess = parseAttendanceData(rawData);
                 if (!parseSuccess) return;
                 
-                // 更新日历显示
-                updateCalendarDisplay();
+                // 等待日历初始化完成后更新显示
+                setTimeout(() => {
+                    // 更新日历显示
+                    updateCalendarDisplay();
+                    
+                    // 计算统计数据
+                    calculateStatistics();
+                }, 500);
                 
-                // 计算统计数据
-                calculateStatistics();
-                
-                // 移除提示弹窗
             } catch (error) {
                 console.error('计算错误:', error);
                 alert(`计算失败：${error.message}`);
@@ -1077,11 +1105,8 @@
 
         // 页面加载时初始化
         window.onload = function() {
-            // 初始化标题
+            // 初始化默认标题
             initTitle();
-            
-            // 获取节假日数据并初始化日历
-            fetchHolidayData();
             
             // 绑定计算按钮事件
             document.getElementById('calculateBtn').addEventListener('click', calculateOvertime);
@@ -1090,11 +1115,13 @@
             document.getElementById('exportBtn').addEventListener('click', exportToCSV);
             
             // 示例数据提示
+            const defaultYear = new Date().getFullYear();
+            const defaultMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
             document.getElementById('attendanceData').placeholder = `请粘贴考勤数据，格式如下：
 [
   {
-    "CARDTIME": "${currentYear}-${currentMonth.toString().padStart(2, '0')}-01 09:30:46",
-    "SHIFTTERM": "${currentYear}-${currentMonth.toString().padStart(2, '0')}-01",
+    "CARDTIME": "${defaultYear}-${defaultMonth}-01 09:30:46",
+    "SHIFTTERM": "${defaultYear}-${defaultMonth}-01",
     ...
   },
   ...
